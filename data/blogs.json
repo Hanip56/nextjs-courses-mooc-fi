@@ -1,0 +1,4 @@
+[
+  {"id":"1","title":"Learning Next.js","author":"Sample Author","url":"https://nextjs.org","likes":3},
+  {"id":"2","title":"Learning React","author":"Sample Author","url":"https://react.dev","likes":5}
+]
