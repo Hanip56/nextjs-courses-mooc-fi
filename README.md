@@ -1,79 +1,253 @@
-# Full Stack Open – Part 14 – Exercises 1–20 (learning implementation)
+# Blog App — Full Stack Open, Part 14 (Next.js)
 
-This update starts from the **fixed** Exercises 1–18 project (the `"use server"` export issue remains fixed).
+A full-stack blog application built with **Next.js 15**, **React 19**, **TypeScript**, **PostgreSQL**, and **Drizzle ORM** as part of the University of Helsinki's [Full Stack Open](https://fullstackopen.com/en/) Next.js course (Part 14).
 
-## Exercise 19: `GET /api/me`
+The application lets users register and sign in, publish and browse blogs, like posts, search by title, maintain a personal reading list, and create an API token for accessing their profile through a protected endpoint. It also includes automated browser tests with Playwright and a GitHub Actions workflow.
 
-- `Authorization: Bearer <token>` required.
-- Looks up the stored UUID in `users.token` and returns only `id`, `username`, `name` (never the token or password hash).
-- Missing or invalid token returns HTTP 401; response is not cached.
+## Features
 
-**PowerShell example:**
+### Authentication and user accounts
+- Register with a username, display name, and password confirmation.
+- Server-side validation with field-specific error messages.
+- Sign in and sign out using **Auth.js / NextAuth.js v5** credentials authentication.
+- Passwords stored as **bcrypt hashes**, not plaintext.
+- JWT-based sessions and authenticated actions.
+- Browse users and view an individual user's blogs.
 
-```powershell
-$token = 'PASTE_TOKEN_FROM_ME_PAGE'
-Invoke-RestMethod -Uri 'http://localhost:3000/api/me' -Headers @{ Authorization = "Bearer $token" }
-```
+### Blog management
+- Create a blog with a **title**, **author**, and **URL** after signing in.
+- Server-side form validation; entered values are preserved after validation errors.
+- Browse blogs sorted by likes, with title filtering via URL search parameters.
+- Open individual blog detail pages at `/blogs/[id]` and like posts.
+- Blogs are linked to their creators.
 
-Generate a token at `/me` first. Test missing/invalid tokens with:
+### Reading list and profile
+- Add posts to a personal reading list.
+- View **Unread** and **Read** sections on `/me`, and mark an item as read.
+- New blogs are added to their creator's reading list automatically.
+- Generate or regenerate a personal API token.
+- Retrieve basic user profile data from `GET /api/me` with a Bearer token.
 
-```powershell
-try { Invoke-WebRequest 'http://localhost:3000/api/me' } catch { $_.Exception.Response.StatusCode }
-```
+### UI and quality
+- Responsive styling with Tailwind CSS v4.
+- A Markdown/MDX-powered homepage.
+- Status notifications and accessible labels for forms and navigation.
+- End-to-end tests using **Playwright** and continuous testing with **GitHub Actions**.
 
-## Exercise 20: reading list
+## Tech stack
 
-- `reading_list`: UUID id, foreign keys `user_id` and `blog_id`, `read boolean default false`.
-- Every blog created by a signed-in user is added to **their** reading list in the same database transaction.
-- Each blog detail page shows **Add to Reading List** for a signed-in user who has not added the blog yet.
-- `/me` shows the signed-in user's list; no cross-user data is exposed.
-- Database-level unique `(user_id, blog_id)` and on-conflict handling prevent duplicate items.
+| Layer | Technology |
+| --- | --- |
+| Framework | Next.js 15 (App Router), React 19 |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Database | PostgreSQL (Neon or local PostgreSQL) |
+| ORM and migrations | Drizzle ORM and Drizzle Kit |
+| Authentication | Auth.js / NextAuth.js v5, bcryptjs |
+| Validation | Zod and Server Actions |
+| Content | MDX (`@next/mdx`) |
+| Testing | Playwright |
+| CI | GitHub Actions |
 
-**Upgrade:** Back up your project and database, then copy these files over the previous version. Keep your existing `.env.local` and database.
+## Requirements
 
-Added files:
-- `app/api/me/route.ts`
-- `app/reading-list/actions.ts`
-- `lib/reading-list.ts`
+- Node.js and npm compatible with Next.js 15 (Node.js **20.9+** recommended as a minimum; a current supported LTS version is preferable).
+- A PostgreSQL database and its connection string.
+- Git (recommended for version control and submission).
 
-Changed files:
-- `db/schema.ts`
-- `lib/blogs.ts`
-- `app/blogs/[id]/page.tsx`
-- `app/blogs/actions.ts`
-- `app/me/page.tsx`
+## Getting started
 
-Run from the project folder:
+### 1. Clone and install
 
 ```bash
-npm install
+git clone https://github.com/<YOUR_USERNAME>/<YOUR_REPOSITORY>.git
+cd <YOUR_REPOSITORY>
+npm ci
+```
+
+If you are working with a downloaded ZIP instead, extract it, open the project folder, and run `npm install`.
+
+### 2. Configure environment variables
+
+Copy `.env.example` to `.env.local` and replace the sample values:
+
+```dotenv
+DATABASE_URL="postgresql://USER:PASSWORD@HOST/DATABASE?sslmode=require"
+AUTH_SECRET="REPLACE_WITH_A_LONG_RANDOM_SECRET"
+AUTH_TRUST_HOST=true
+```
+
+Generate an authentication secret with:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+On Windows PowerShell, the same Node.js command works. Do **not** commit `.env.local`, `.env.test`, actual credentials, or API tokens.
+
+### 3. Initialize the database
+
+For a fresh database, generate and apply Drizzle migrations:
+
+```bash
 npm run db:generate
 npm run db:migrate
-npm run typecheck
+```
+
+You can inspect your database using:
+
+```bash
+npm run db:studio
+```
+
+> **Existing database:** Back up important data and inspect generated SQL before applying schema changes. Avoid running test-reset operations against your regular database.
+
+### 4. Run the app
+
+```bash
 npm run dev
 ```
 
-**Inspect the generated migration SQL before running `db:migrate`.** The intended change is only a new `reading_list` table and its unique index/foreign keys. Your existing users and blogs must remain intact. Existing blogs do not automatically populate the reading list; this exercise's requirement concerns **newly created** blogs.
+Open **http://localhost:3000**.
 
-### Manual verification
+For a production build:
 
-1. Sign in, visit `/me`, generate an API token, then send `GET /api/me` with a Bearer token. The response includes only the correct user's public details.
-2. Missing/incorrect token returns 401; generating a *new* token invalidates the previous token.
-3. Sign in as User A and create a new blog. It appears on A's `/me` reading list.
-4. Sign in as User B. Open A's blog and select **Add to Reading List**; B's `/me` now includes it.
-5. The same blog can't be added twice, and B can't see A's private reading-list entries (unless also added to B's own list).
-6. Previously implemented blog sorting, search, likes, users, registration and token generation still work.
+```bash
+npm run build
+npm run start
+```
 
-**Not implemented:** Mark as read/unread controls belong to Exercise 21.
+## Main application routes
 
-This is sample implementation, not an officially graded submission. Run the course's tests before submitting.
+| Path | Purpose |
+| --- | --- |
+| `/` | MDX homepage |
+| `/register` | Create an account |
+| `/login` | Sign in |
+| `/blogs` | Browse, sort, and filter blog posts |
+| `/blogs/new` | Create a blog (requires sign-in) |
+| `/blogs/[id]` | View and like a blog; add it to the reading list |
+| `/users` | Browse registered users |
+| `/users/[username]` | View a user's blogs |
+| `/me` | Personal profile, reading list, and API token (requires sign-in) |
+| `/api/me` | Token-authenticated profile API |
 
+### Token-authenticated API
 
-## Exercises 21–22
+Generate a token on `/me`, then call:
 
-See [UPDATE-21-22.md](UPDATE-21-22.md) for the latest changes, setup and verification.
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/api/me
+```
 
+A valid token returns the associated user's public profile details (`id`, `username`, `name`). Missing or invalid tokens return **401 Unauthorized**. Treat generated tokens as secrets.
 
-## Exercises 23–24
+## Database design
 
-See [EXERCISES-23-24.md](EXERCISES-23-24.md) for destructive test endpoint safety, test database setup, and official GitHub Actions steps.
+The PostgreSQL schema is defined in `db/schema.ts` and includes:
+
+- **`users`** — UUID primary key, unique username, display name, password hash, optional API token.
+- **`blogs`** — UUID internal key, numeric public ID, title, author, URL, like count, optional creator reference.
+- **`reading_list`** — relationship between user and blog, read/unread flag, unique `(user_id, blog_id)` constraint.
+
+Drizzle relations connect users to their blogs and reading-list entries.
+
+## Tests
+
+The repository includes the official Full Stack Open Playwright test suite under `tests/`.
+
+### Local browser tests
+
+Install browser dependencies once:
+
+```bash
+npx playwright install chromium
+```
+
+Configure a **separate test database** before executing the suite. The included Playwright configuration starts a freshly built Next.js server and enables test-only fixture endpoints for the local run.
+
+```bash
+npm run typecheck
+npm run test:e2e
+```
+
+Other useful commands:
+
+```bash
+npx playwright test --list
+npx playwright test --reporter=line
+npm run test:e2e:ui
+npx playwright show-report
+```
+
+**Reported result:** The project's latest local run passed **28 of 28 Playwright tests**. CI results should be checked independently in GitHub Actions.
+
+> **Destructive testing warning:** The test suite calls `DELETE /api/testing/reset`, which deletes test users, blogs, and reading-list rows. Always run browser tests against a dedicated database with no important data. The testing endpoints are gated by an explicit test flag and localhost checks; never make them publicly accessible.
+
+## GitHub Actions
+
+The repository contains a workflow at `.github/workflows/playwright.yml`. It runs for pushes and pull requests to `main` or `master`, installs dependencies and Chromium, prepares the database, and runs Playwright tests. Failed-run artifacts include a Playwright HTML report.
+
+Add the following repository secrets at **GitHub → Settings → Secrets and variables → Actions**:
+
+| Secret | Description |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL URL for a dedicated **test** database |
+| `AUTH_SECRET` | Authentication secret for the test server (the workflow also accepts `NEXTAUTH_SECRET`) |
+| `NEXTAUTH_URL` | Set to `http://localhost:3000` if required by your workflow |
+
+Never use your production database in GitHub Actions tests. Confirm the workflow's latest status in the **Actions** tab before submitting the course project.
+
+## Available npm scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Run development server |
+| `npm run build` | Compile a production build |
+| `npm run start` | Start the compiled server |
+| `npm run typecheck` | Check TypeScript types |
+| `npm run lint` | Run ESLint |
+| `npm run db:generate` | Generate Drizzle migrations |
+| `npm run db:migrate` | Apply Drizzle migrations |
+| `npm run db:studio` | Open Drizzle Studio |
+| `npm run test:e2e` | Run Playwright tests |
+| `npm run test:e2e:ui` | Open Playwright interactive mode |
+
+## Project structure
+
+```text
+app/
+  api/
+    auth/[...nextauth]/       # Auth.js handlers
+    me/                       # Bearer-token profile endpoint
+    testing/                  # Local test fixture endpoints
+  blogs/                      # Blog list, details, creation, Server Actions
+  login/                      # Login page
+  register/                   # Registration page and form
+  me/                         # Profile, reading list, API token
+  reading-list/               # Reading-list actions
+  users/                      # User listing and profile pages
+  homepage.mdx                # Homepage content
+  layout.tsx                  # Navigation and shared layout
+  globals.css                 # Global styling
+components/                   # Shared UI and notifications
+db/                           # Drizzle client and schema
+lib/                          # Business logic and authentication helpers
+drizzle/                      # Database migrations
+tests/                        # Official Playwright end-to-end tests
+.github/workflows/            # GitHub Actions configuration
+auth.ts                       # Auth.js configuration
+playwright.config.ts          # Browser-test configuration
+drizzle.config.ts             # Drizzle Kit configuration
+```
+
+## Course submission
+
+This project was developed for **Full Stack Open Part 14 — Next.js**. Before submitting the final exercise, ensure the application code is committed, the required official tests pass, the GitHub Actions workflow is green, and course reviewers have repository access if it is private.
+
+## Acknowledgments
+
+- [Full Stack Open](https://fullstackopen.com/en/) — University of Helsinki
+- [Official Next.js course test suite](https://github.com/fullstack-hy2020/next-js-tests)
+
+This repository is an educational course project, not an official University of Helsinki product.
