@@ -247,11 +247,9 @@ drizzle.config.ts             # Drizzle Kit configuration
 
 ## Course submission
 
-This project was developed for **Full Stack Open Part 14 — Next.js**. Before submitting the final exercise, ensure the application code is committed, the required official tests pass, the GitHub Actions workflow is green, and course reviewers have repository access if it is private.
+Before submitting the final exercise, ensure the application code is committed, the required official tests pass, the GitHub Actions workflow is green, and course reviewers have repository access if it is private.
 
 ## Acknowledgments
 
-- [Full Stack Open](https://fullstackopen.com/en/) — University of Helsinki
+- [Course site](https://courses.mooc.fi/org/uh-cs/courses/full-stack-open-nextjs)
 - [Official Next.js course test suite](https://github.com/fullstack-hy2020/next-js-tests)
-
-This repository is an educational course project, not an official University of Helsinki product.
