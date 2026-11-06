@@ -27,7 +27,7 @@ jobs:
       - name: Set up environment file
         run: |
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env.test
-          echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env.test
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env.test
           echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env.test
           echo "NODE_ENV=test" >> .env.test
 
@@ -37,7 +37,7 @@ jobs:
           cat .env.test | sed 's/=.*/=***/' 
           echo ""
           echo "DATABASE_URL secret exists: ${{ secrets.DATABASE_URL != '' }}"
-          echo "NEXTAUTH_SECRET secret exists: ${{ secrets.NEXTAUTH_SECRET != '' }}"
+          echo "AUTH_SECRET secret exists: ${{ secrets.AUTH_SECRET != '' }}"
           echo "NEXTAUTH_URL secret exists: ${{ secrets.NEXTAUTH_URL != '' }}"
           echo ""
           echo "Checking if DATABASE_URL is loaded from file:"
