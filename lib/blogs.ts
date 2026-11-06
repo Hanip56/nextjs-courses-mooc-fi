@@ -1,7 +1,7 @@
 import 'server-only'
 import { desc, eq, sql } from 'drizzle-orm'
 import { db } from '@/db'
-import { blogs } from '@/db/schema'
+import { blogs, readingList } from '@/db/schema'
 
 export type Blog = typeof blogs.$inferSelect
 
@@ -10,15 +10,19 @@ export async function getBlogs(): Promise<Blog[]> {
 }
 
 export async function getBlog(id: string): Promise<Blog | undefined> {
-  // Avoid a database UUID cast exception for invalid dynamic route IDs.
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return undefined
   const [blog] = await db.select().from(blogs).where(eq(blogs.id, id)).limit(1)
   return blog
 }
 
-export async function createBlog(blog: Pick<Blog, 'title' | 'author' | 'url'>) {
-  const [created] = await db.insert(blogs).values(blog).returning()
-  return created
+export async function createBlog(blog: Pick<Blog, 'title' | 'author' | 'url' | 'userId'>) {
+  if (!blog.userId) throw new Error('A blog author must be logged in')
+  // Both writes succeed or both roll back: the author's new blog is in their reading list.
+  return db.transaction(async (tx) => {
+    const [created] = await tx.insert(blogs).values(blog).returning()
+    await tx.insert(readingList).values({ userId: blog.userId!, blogId: created.id })
+    return created
+  })
 }
 
 export async function likeBlog(id: string) {

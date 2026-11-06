@@ -1,52 +1,79 @@
-# Full Stack Open — Part 14 — Exercises 1–8
+# Full Stack Open – Part 14 – Exercises 1–20 (learning implementation)
 
-## What changed
-- Exercises 1–6: blog list, create, detail page, likes, sorting, title filtering.
-- Exercise 7: **manual task:** push your repository to GitHub and deploy it on Vercel. See steps below.
-- Exercise 8: replace JSON storage with PostgreSQL + Drizzle ORM. The database schema contains `id`, `title`, `author`, `url`, and `likes`. Likes update atomically.
+This update starts from the **fixed** Exercises 1–18 project (the `"use server"` export issue remains fixed).
 
-**This is an educational implementation through Exercise 8, not a finished Part 14 submission.** Exercises 9–24 and the official test suite remain outstanding.
+## Exercise 19: `GET /api/me`
 
-## Exercise 8: PostgreSQL setup
+- `Authorization: Bearer <token>` required.
+- Looks up the stored UUID in `users.token` and returns only `id`, `username`, `name` (never the token or password hash).
+- Missing or invalid token returns HTTP 401; response is not cached.
 
-1. Create a PostgreSQL database (e.g. [Neon](https://neon.tech), or local PostgreSQL).
-2. Copy `.env.example` to `.env.local` and set `DATABASE_URL` to your real connection string. **Never commit `.env.local`.**
-3. Install and migrate:
+**PowerShell example:**
+
+```powershell
+$token = 'PASTE_TOKEN_FROM_ME_PAGE'
+Invoke-RestMethod -Uri 'http://localhost:3000/api/me' -Headers @{ Authorization = "Bearer $token" }
+```
+
+Generate a token at `/me` first. Test missing/invalid tokens with:
+
+```powershell
+try { Invoke-WebRequest 'http://localhost:3000/api/me' } catch { $_.Exception.Response.StatusCode }
+```
+
+## Exercise 20: reading list
+
+- `reading_list`: UUID id, foreign keys `user_id` and `blog_id`, `read boolean default false`.
+- Every blog created by a signed-in user is added to **their** reading list in the same database transaction.
+- Each blog detail page shows **Add to Reading List** for a signed-in user who has not added the blog yet.
+- `/me` shows the signed-in user's list; no cross-user data is exposed.
+- Database-level unique `(user_id, blog_id)` and on-conflict handling prevent duplicate items.
+
+**Upgrade:** Back up your project and database, then copy these files over the previous version. Keep your existing `.env.local` and database.
+
+Added files:
+- `app/api/me/route.ts`
+- `app/reading-list/actions.ts`
+- `lib/reading-list.ts`
+
+Changed files:
+- `db/schema.ts`
+- `lib/blogs.ts`
+- `app/blogs/[id]/page.tsx`
+- `app/blogs/actions.ts`
+- `app/me/page.tsx`
+
+Run from the project folder:
 
 ```bash
 npm install
 npm run db:generate
 npm run db:migrate
+npm run typecheck
 npm run dev
 ```
 
-4. Open `http://localhost:3000/blogs`, add a blog, click Like, search, restart the dev server, and confirm data persists.
-5. Optionally view your data using `npm run db:studio`.
+**Inspect the generated migration SQL before running `db:migrate`.** The intended change is only a new `reading_list` table and its unique index/foreign keys. Your existing users and blogs must remain intact. Existing blogs do not automatically populate the reading list; this exercise's requirement concerns **newly created** blogs.
 
-**Existing JSON data:** previous versions used `data/blogs.json`. This upgrade does not import those blogs automatically; the JSON file is untouched. You can recreate entries manually, or import them in a separate one-time migration before removing the file. Do not overwrite or remove your previous project directory until the new database version works.
+### Manual verification
 
-## Exercise 7: Deploy on Vercel
+1. Sign in, visit `/me`, generate an API token, then send `GET /api/me` with a Bearer token. The response includes only the correct user's public details.
+2. Missing/incorrect token returns 401; generating a *new* token invalidates the previous token.
+3. Sign in as User A and create a new blog. It appears on A's `/me` reading list.
+4. Sign in as User B. Open A's blog and select **Add to Reading List**; B's `/me` now includes it.
+5. The same blog can't be added twice, and B can't see A's private reading-list entries (unless also added to B's own list).
+6. Previously implemented blog sorting, search, likes, users, registration and token generation still work.
 
-1. Create your own GitHub repository and push this project (do not push `.env.local`).
-2. In [Vercel](https://vercel.com), choose **Add New → Project → Import Git Repository**.
-3. Set `DATABASE_URL` in **Project Settings → Environment Variables** using your hosted PostgreSQL connection string.
-4. Apply migrations to the same database **from your local terminal** with `npm run db:migrate` (using `.env.local`). Do not run migrations automatically on every page request.
-5. Deploy and test the resulting URL: create a blog and verify it remains after refresh. No local file writes are required now.
+**Not implemented:** Mark as read/unread controls belong to Exercise 21.
 
-You can perform the Vercel deployment before or after adopting the database; when using the older JSON version, persistent blog creation will not work reliably on Vercel. Use the database version for a functioning deployed app.
+This is sample implementation, not an officially graded submission. Run the course's tests before submitting.
 
-## Files changed
-- `db/schema.ts` — Drizzle blog table
-- `db/index.ts` — Postgres client and Drizzle database instance
-- `drizzle.config.ts` — CLI migration config
-- `lib/blogs.ts` — database-based blog services
-- `package.json` — database dependencies and scripts
-- `.env.example` — environment variable template
 
-The route and Server Action interfaces are unchanged, so Exercises 1–6 UI should continue working.
+## Exercises 21–22
 
-## Notes
-- Node.js 20+ is recommended.
-- The database must be reachable from your computer.
-- Never expose `DATABASE_URL` through `NEXT_PUBLIC_` variables.
-- Use a development database for practice; avoid running migration scripts against unrelated production data.
+See [UPDATE-21-22.md](UPDATE-21-22.md) for the latest changes, setup and verification.
+
+
+## Exercises 23–24
+
+See [EXERCISES-23-24.md](EXERCISES-23-24.md) for destructive test endpoint safety, test database setup, and official GitHub Actions steps.

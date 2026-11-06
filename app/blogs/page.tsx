@@ -1,54 +1,30 @@
-import Link from 'next/link'
-import { getBlogs } from '@/lib/blogs'
-
-// Exercises 5–6: Sort by likes and filter blogs using URL search parameters.
-export const dynamic = 'force-dynamic'
-
-type BlogsPageProps = {
-  searchParams: Promise<{ filter?: string | string[] }>
-}
-
-export default async function Blogs({ searchParams }: BlogsPageProps) {
+import Link from "next/link"
+import { getBlogs } from "@/lib/blogs"
+export const dynamic = "force-dynamic"
+type Props = { searchParams: Promise<{ filter?: string | string[] }> }
+export default async function Blogs({ searchParams }: Props) {
   const params = await searchParams
-  const rawFilter = Array.isArray(params.filter) ? params.filter[0] : params.filter
-  const filter = (rawFilter ?? '').trim()
-  const blogs = (await getBlogs())
-    .filter(blog => blog.title.toLowerCase().includes(filter.toLowerCase()))
+  const raw = Array.isArray(params.filter) ? params.filter[0] : params.filter
+  const filter = (raw ?? "").trim()
+  const blogs = (await getBlogs()).filter(b => b.title.toLowerCase().includes(filter.toLowerCase()))
     .sort((a, b) => b.likes - a.likes)
-
-  return (
-    <main>
-      <h1 className="mb-4 text-2xl font-bold">Blogs</h1>
-      <form action="/blogs" method="GET" className="mb-5 flex flex-wrap items-end gap-3">
-        <label htmlFor="filter" className="flex flex-col gap-1">
-          <span className="text-sm font-medium">Search blogs by title</span>
-          <input
-            id="filter"
-            name="filter"
-            type="search"
-            defaultValue={filter}
-            placeholder="e.g. React"
-            className="rounded border px-3 py-2"
-          />
-        </label>
-        <button type="submit" className="rounded bg-blue-700 px-4 py-2 text-white">
-          Search
-        </button>
-        {filter && <Link href="/blogs" className="px-2 py-2 underline">Clear</Link>}
-      </form>
-
-      {blogs.length === 0 ? (
-        <p>No blogs found{filter ? ` for “${filter}”` : ''}.</p>
-      ) : (
-        <ul className="space-y-3">
-          {blogs.map(blog => (
-            <li key={blog.id} className="rounded border p-3">
-              <Link className="underline" href={`/blogs/${blog.id}`}>{blog.title}</Link>
-              {' — '}{blog.author} ({blog.likes} likes)
-            </li>
-          ))}
-        </ul>
-      )}
-    </main>
-  )
+  return <main className="space-y-6">
+    <div className="flex flex-wrap items-end justify-between gap-3"><div>
+      <p className="text-sm font-semibold uppercase tracking-wide text-blue-600">Discover</p>
+      <h1 className="text-3xl font-bold tracking-tight">Blogs</h1>
+      <p className="mt-1 text-sm text-slate-500">Browse and search community blogs, sorted by likes.</p>
+    </div><Link href="/blogs/new" className="rounded-lg bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">Create new blog</Link></div>
+    <form action="/blogs" method="GET" className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <label htmlFor="filter" className="min-w-48 flex-1 space-y-1"><span className="block text-sm font-semibold">Search by title</span>
+      <input id="filter" name="filter" type="search" defaultValue={filter} placeholder="Search blogs..." className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-offset-2 focus:border-blue-600" /></label>
+      <button type="submit" className="rounded-lg bg-slate-900 px-5 py-2 text-sm font-semibold text-white hover:bg-slate-700">Search</button>
+      {filter && <Link href="/blogs" className="rounded-lg px-3 py-2 text-sm font-medium text-blue-700 hover:bg-blue-50">Clear</Link>}
+    </form>
+    {blogs.length === 0 ? <p className="rounded-xl border border-slate-200 bg-white p-8 text-center text-slate-500">No blogs found{filter ? ` for “${filter}”` : ""}.</p> :
+      <ul className="grid gap-3 sm:grid-cols-2">{blogs.map(b => <li key={b.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-300 hover:shadow-md">
+        <Link href={`/blogs/${b.id}`} className="text-lg font-semibold text-slate-900 hover:text-blue-700 hover:underline">{b.title}</Link>
+        <p className="mt-2 text-sm text-slate-500">By {b.author}</p>
+        <p className="mt-4 text-sm font-medium text-blue-700">♥ {b.likes} likes</p>
+      </li>)}</ul>}
+  </main>
 }

@@ -1,1 +1,12 @@
 @import "tailwindcss";
+
+
+/* Exercise 22: style the HTML generated from the local Markdown file. */
+.markdown-home h1 { margin-bottom: 1.25rem; font-size: 2.25rem; font-weight: 800; letter-spacing: -.03em; }
+.markdown-home h2 { margin-top: 2rem; margin-bottom: .75rem; font-size: 1.4rem; font-weight: 700; }
+.markdown-home p { margin: .75rem 0; line-height: 1.75; color: #475569; }
+.markdown-home ul { margin: .75rem 0; padding-left: 1.5rem; list-style: disc; color: #475569; }
+.markdown-home li { margin-bottom: .4rem; }
+.markdown-home a { color: #1d4ed8; text-decoration: underline; text-underline-offset: 3px; }
+.markdown-home a:hover { color: #1e40af; }
+.markdown-home strong { color: #0f172a; font-weight: 700; }

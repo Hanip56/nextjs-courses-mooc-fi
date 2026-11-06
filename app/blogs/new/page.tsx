@@ -1,11 +1,12 @@
-import { addBlog } from '../actions'
-export default function NewBlog() {
-  return <main><h1 className="mb-4 text-2xl font-bold">Create a blog</h1>
-    <form action={addBlog} className="flex max-w-md flex-col gap-3">
-      <label>Title<input name="title" required className="block w-full border p-2" /></label>
-      <label>Author<input name="author" required className="block w-full border p-2" /></label>
-      <label>URL<input name="url" type="url" required className="block w-full border p-2" /></label>
-      <button className="rounded bg-blue-700 px-4 py-2 text-white" type="submit">Create</button>
-    </form>
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+import { NewBlogForm } from "./new-blog-form"
+export default async function NewBlog() {
+  if (!(await auth())?.user) redirect("/login")
+  return <main className="mx-auto max-w-2xl space-y-6">
+    <header><p className="text-sm font-semibold uppercase tracking-wide text-blue-600">Contribute</p>
+      <h1 className="text-3xl font-bold tracking-tight">Create a blog</h1>
+      <p className="mt-1 text-slate-500">Share a new blog with the community.</p></header>
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"><NewBlogForm /></div>
   </main>
 }

@@ -10,7 +10,9 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "next": "^15.5.0",
@@ -18,7 +20,14 @@
     "react-dom": "^19.1.0",
     "drizzle-orm": "^0.44.0",
     "postgres": "^3.4.7",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "next-auth": "^5.0.0-beta.30",
+    "bcryptjs": "^2.4.3",
+    "zod": "^3.25.0",
+    "@next/mdx": "^15.5.0",
+    "@mdx-js/loader": "^3.1.0",
+    "@mdx-js/react": "^3.1.0",
+    "@types/mdx": "^2.0.13"
   },
   "devDependencies": {
     "@types/node": "^22",
@@ -29,6 +38,8 @@
     "@tailwindcss/postcss": "^4",
     "postcss": "^8",
     "drizzle-kit": "^0.31.0",
-    "dotenv": "^16.6.1"
+    "dotenv": "^16.6.1",
+    "@types/bcryptjs": "^2.4.6",
+    "@playwright/test": "^1.58.0"
   }
 }
