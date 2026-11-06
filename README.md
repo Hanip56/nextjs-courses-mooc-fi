@@ -1,12 +1,13 @@
-# Blog App — Full Stack Open, Part 14 (Next.js)
+# Blog App (Next.js)
 
-A full-stack blog application built with **Next.js 15**, **React 19**, **TypeScript**, **PostgreSQL**, and **Drizzle ORM** as part of the University of Helsinki's [Full Stack Open](https://fullstackopen.com/en/) Next.js course (Part 14).
+A full-stack blog application built with **Next.js 15**, **React 19**, **TypeScript**, **PostgreSQL**, and **Drizzle ORM**.
 
 The application lets users register and sign in, publish and browse blogs, like posts, search by title, maintain a personal reading list, and create an API token for accessing their profile through a protected endpoint. It also includes automated browser tests with Playwright and a GitHub Actions workflow.
 
 ## Features
 
 ### Authentication and user accounts
+
 - Register with a username, display name, and password confirmation.
 - Server-side validation with field-specific error messages.
 - Sign in and sign out using **Auth.js / NextAuth.js v5** credentials authentication.
@@ -15,6 +16,7 @@ The application lets users register and sign in, publish and browse blogs, like 
 - Browse users and view an individual user's blogs.
 
 ### Blog management
+
 - Create a blog with a **title**, **author**, and **URL** after signing in.
 - Server-side form validation; entered values are preserved after validation errors.
 - Browse blogs sorted by likes, with title filtering via URL search parameters.
@@ -22,6 +24,7 @@ The application lets users register and sign in, publish and browse blogs, like 
 - Blogs are linked to their creators.
 
 ### Reading list and profile
+
 - Add posts to a personal reading list.
 - View **Unread** and **Read** sections on `/me`, and mark an item as read.
 - New blogs are added to their creator's reading list automatically.
@@ -29,6 +32,7 @@ The application lets users register and sign in, publish and browse blogs, like 
 - Retrieve basic user profile data from `GET /api/me` with a Bearer token.
 
 ### UI and quality
+
 - Responsive styling with Tailwind CSS v4.
 - A Markdown/MDX-powered homepage.
 - Status notifications and accessible labels for forms and navigation.
@@ -36,18 +40,18 @@ The application lets users register and sign in, publish and browse blogs, like 
 
 ## Tech stack
 
-| Layer | Technology |
-| --- | --- |
-| Framework | Next.js 15 (App Router), React 19 |
-| Language | TypeScript |
-| Styling | Tailwind CSS v4 |
-| Database | PostgreSQL (Neon or local PostgreSQL) |
-| ORM and migrations | Drizzle ORM and Drizzle Kit |
-| Authentication | Auth.js / NextAuth.js v5, bcryptjs |
-| Validation | Zod and Server Actions |
-| Content | MDX (`@next/mdx`) |
-| Testing | Playwright |
-| CI | GitHub Actions |
+| Layer              | Technology                            |
+| ------------------ | ------------------------------------- |
+| Framework          | Next.js 15 (App Router), React 19     |
+| Language           | TypeScript                            |
+| Styling            | Tailwind CSS v4                       |
+| Database           | PostgreSQL (Neon or local PostgreSQL) |
+| ORM and migrations | Drizzle ORM and Drizzle Kit           |
+| Authentication     | Auth.js / NextAuth.js v5, bcryptjs    |
+| Validation         | Zod and Server Actions                |
+| Content            | MDX (`@next/mdx`)                     |
+| Testing            | Playwright                            |
+| CI                 | GitHub Actions                        |
 
 ## Requirements
 
@@ -119,18 +123,18 @@ npm run start
 
 ## Main application routes
 
-| Path | Purpose |
-| --- | --- |
-| `/` | MDX homepage |
-| `/register` | Create an account |
-| `/login` | Sign in |
-| `/blogs` | Browse, sort, and filter blog posts |
-| `/blogs/new` | Create a blog (requires sign-in) |
-| `/blogs/[id]` | View and like a blog; add it to the reading list |
-| `/users` | Browse registered users |
-| `/users/[username]` | View a user's blogs |
-| `/me` | Personal profile, reading list, and API token (requires sign-in) |
-| `/api/me` | Token-authenticated profile API |
+| Path                | Purpose                                                          |
+| ------------------- | ---------------------------------------------------------------- |
+| `/`                 | MDX homepage                                                     |
+| `/register`         | Create an account                                                |
+| `/login`            | Sign in                                                          |
+| `/blogs`            | Browse, sort, and filter blog posts                              |
+| `/blogs/new`        | Create a blog (requires sign-in)                                 |
+| `/blogs/[id]`       | View and like a blog; add it to the reading list                 |
+| `/users`            | Browse registered users                                          |
+| `/users/[username]` | View a user's blogs                                              |
+| `/me`               | Personal profile, reading list, and API token (requires sign-in) |
+| `/api/me`           | Token-authenticated profile API                                  |
 
 ### Token-authenticated API
 
@@ -190,27 +194,27 @@ The repository contains a workflow at `.github/workflows/playwright.yml`. It run
 
 Add the following repository secrets at **GitHub → Settings → Secrets and variables → Actions**:
 
-| Secret | Description |
-| --- | --- |
-| `DATABASE_URL` | PostgreSQL URL for a dedicated **test** database |
-| `AUTH_SECRET` | Authentication secret for the test server (the workflow also accepts `NEXTAUTH_SECRET`) |
-| `NEXTAUTH_URL` | Set to `http://localhost:3000` if required by your workflow |
+| Secret         | Description                                                                             |
+| -------------- | --------------------------------------------------------------------------------------- |
+| `DATABASE_URL` | PostgreSQL URL for a dedicated **test** database                                        |
+| `AUTH_SECRET`  | Authentication secret for the test server (the workflow also accepts `NEXTAUTH_SECRET`) |
+| `NEXTAUTH_URL` | Set to `http://localhost:3000` if required by your workflow                             |
 
 Never use your production database in GitHub Actions tests. Confirm the workflow's latest status in the **Actions** tab before submitting the course project.
 
 ## Available npm scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Run development server |
-| `npm run build` | Compile a production build |
-| `npm run start` | Start the compiled server |
-| `npm run typecheck` | Check TypeScript types |
-| `npm run lint` | Run ESLint |
-| `npm run db:generate` | Generate Drizzle migrations |
-| `npm run db:migrate` | Apply Drizzle migrations |
-| `npm run db:studio` | Open Drizzle Studio |
-| `npm run test:e2e` | Run Playwright tests |
+| Command               | Description                      |
+| --------------------- | -------------------------------- |
+| `npm run dev`         | Run development server           |
+| `npm run build`       | Compile a production build       |
+| `npm run start`       | Start the compiled server        |
+| `npm run typecheck`   | Check TypeScript types           |
+| `npm run lint`        | Run ESLint                       |
+| `npm run db:generate` | Generate Drizzle migrations      |
+| `npm run db:migrate`  | Apply Drizzle migrations         |
+| `npm run db:studio`   | Open Drizzle Studio              |
+| `npm run test:e2e`    | Run Playwright tests             |
 | `npm run test:e2e:ui` | Open Playwright interactive mode |
 
 ## Project structure
