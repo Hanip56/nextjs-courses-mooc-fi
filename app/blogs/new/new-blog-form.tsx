@@ -14,7 +14,7 @@ export function NewBlogForm() {
     <form action={formAction} noValidate className="flex flex-col gap-5">
       {fields.map((field) => (
         <label key={field} className="block">
-          <span className="mb-1.5 block text-sm font-semibold capitalize text-slate-700">{field}</span>
+          <span className="mb-1.5 block text-sm font-semibold capitalize text-slate-700">{field === "url" ? "URL" : field[0].toUpperCase() + field.slice(1)}</span>
           <input
             name={field}
             id={field}
@@ -34,7 +34,7 @@ export function NewBlogForm() {
           )}
         </label>
       ))}
-      <button disabled={pending} className="self-start rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60" type="submit">
+      <button data-testid="create-blog-button" disabled={pending} className="self-start rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:opacity-60" type="submit">
         {pending ? "Creating..." : "Create"}
       </button>
     </form>

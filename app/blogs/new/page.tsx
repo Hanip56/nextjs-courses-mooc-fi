@@ -1,8 +1,5 @@
-import { auth } from "@/auth"
-import { redirect } from "next/navigation"
 import { NewBlogForm } from "./new-blog-form"
 export default async function NewBlog() {
-  if (!(await auth())?.user) redirect("/login")
   return <main className="mx-auto max-w-2xl space-y-6">
     <header><p className="text-sm font-semibold uppercase tracking-wide text-blue-600">Contribute</p>
       <h1 className="text-3xl font-bold tracking-tight">Create a blog</h1>

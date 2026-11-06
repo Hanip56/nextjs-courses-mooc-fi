@@ -12,7 +12,7 @@ export async function loginAction(formData: FormData) {
     await signIn("credentials", {
       username: String(formData.get("username") ?? ""),
       password: String(formData.get("password") ?? ""),
-      redirectTo: "/blogs",
+      redirectTo: "/",
     })
   } catch (error) {
     if (error instanceof AuthError) redirect("/login?error=credentials")
@@ -35,8 +35,8 @@ export async function registerAction(
   const errors: RegistrationErrors = {}
 
   if (!values.name) errors.name = "Name is required."
-  if (!/^[a-zA-Z0-9_]{3,32}$/.test(values.username)) {
-    errors.username = "Use 3–32 letters, numbers, or underscores."
+  if (!/^[a-zA-Z0-9_]{4,32}$/.test(values.username)) {
+    errors.username = "Use 4–32 letters, numbers, or underscores."
   }
   if (password.length < 8) errors.password = "Password must be at least 8 characters."
   if (password !== confirmPassword) errors.confirmPassword = "Passwords do not match."
@@ -58,7 +58,7 @@ export async function registerAction(
     if (conflict.length) return { values, errors: { username: "Username already taken." } }
     throw error
   }
-  redirect("/login?registered=1")
+  redirect("/login")
 }
 
 export async function logoutAction() {

@@ -23,7 +23,7 @@ export default async function UserPage({ params }: Props) {
         <ul className="space-y-3">
           {user.blogs.map(blog => (
             <li key={blog.id} className="rounded border p-3">
-              <Link className="text-blue-700 underline" href={`/blogs/${blog.id}`}>
+              <Link className="text-blue-700 underline" href={`/blogs/${blog.publicId}`}>
                 {blog.title}
               </Link>
               <span className="ml-2 text-sm text-slate-500">({blog.likes} likes)</span>

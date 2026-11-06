@@ -10,6 +10,12 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET || secrets.NEXTAUTH_SECRET }}
+      NEXTAUTH_SECRET: ${{ secrets.AUTH_SECRET || secrets.NEXTAUTH_SECRET }}
+      AUTH_URL: http://localhost:3000
+      NEXTAUTH_URL: http://localhost:3000
 
     steps:
       - uses: actions/checkout@v4
@@ -27,9 +33,9 @@ jobs:
       - name: Set up environment file
         run: |
           echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env.test
-          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET }}" >> .env.test
+          echo "AUTH_SECRET=${{ secrets.AUTH_SECRET || secrets.NEXTAUTH_SECRET }}" >> .env.test
           echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env.test
-          echo "NODE_ENV=test" >> .env.test
+          echo "AUTH_URL=http://localhost:3000" >> .env.test
 
       - name: Verify environment setup
         run: |

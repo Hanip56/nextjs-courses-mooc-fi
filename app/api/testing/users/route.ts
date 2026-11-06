@@ -5,7 +5,9 @@ import { users } from '@/db/schema'
 
 // Exercise 23: test fixture factory. NEVER expose in production.
 export async function POST(request: NextRequest) {
-  if (process.env.NODE_ENV === 'production') {
+  const testMode = process.env.FSO_E2E_TEST === 'true'
+  const localRequest = new URL(request.url).hostname === 'localhost'
+  if (!testMode || !localRequest) {
     return NextResponse.json(
       { error: 'This endpoint is not available in production' },
       { status: 403 },

@@ -1,12 +1,15 @@
 import { defineConfig } from "@playwright/test"
 import dotenv from "dotenv"
 
-// Load .env.test in CI, otherwise .env.local
+// Use a dedicated test DB. Keep secrets out of this repository.
 dotenv.config({ path: process.env.CI ? ".env.test" : ".env.local", quiet: true })
+
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL is required for E2E tests; use an isolated test database")
+}
 
 export default defineConfig({
   testDir: "./tests",
-  // tests share the same database, so they can not be run in parallel
   workers: 1,
   forbidOnly: !!process.env.CI,
   reporter: process.env.CI ? "html" : "list",
@@ -15,8 +18,16 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "npm run dev",
+    // Production build avoids Fast Refresh/HMR interrupting Server Action redirects.
+    command: "npm run build && npm run start",
     url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    timeout: 240_000,
+    reuseExistingServer: false,
+    env: {
+      FSO_E2E_TEST: "true",
+      DATABASE_URL: process.env.DATABASE_URL,
+      AUTH_SECRET: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || "",
+      AUTH_URL: "http://localhost:3000",
+    },
   },
 })

@@ -10,8 +10,10 @@ export async function getBlogs(): Promise<Blog[]> {
 }
 
 export async function getBlog(id: string): Promise<Blog | undefined> {
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return undefined
-  const [blog] = await db.select().from(blogs).where(eq(blogs.id, id)).limit(1)
+  const numeric = /^[1-9]\d*$/.test(id) ? Number(id) : null
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  if (numeric === null && !uuid) return undefined
+  const [blog] = await db.select().from(blogs).where(numeric !== null ? eq(blogs.publicId, numeric) : eq(blogs.id, id)).limit(1)
   return blog
 }
 

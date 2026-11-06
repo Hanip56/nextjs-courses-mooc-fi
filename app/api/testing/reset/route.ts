@@ -1,10 +1,12 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { blogs, readingList, users } from '@/db/schema'
 
 // Exercise 23: destructive fixture reset. NEVER expose in production.
-export async function DELETE() {
-  if (process.env.NODE_ENV === 'production') {
+export async function DELETE(request: NextRequest) {
+  const testMode = process.env.FSO_E2E_TEST === 'true'
+  const localRequest = new URL(request.url).hostname === 'localhost'
+  if (!testMode || !localRequest) {
     return NextResponse.json(
       { error: 'This endpoint is not available in production' },
       { status: 403 },
